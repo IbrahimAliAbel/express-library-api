@@ -23,6 +23,19 @@ app.get("/test-db", async (req, res) => {
   }
 });
 
+app.get("/books", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM books");
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Failed to fetch books",
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
