@@ -77,8 +77,63 @@ const createBook = async (req, res) => {
   }
 };
 
+const updateBook = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      title,
+      description,
+      isbn,
+      publisher,
+      published_year,
+      cover_url,
+      category_id,
+    } = req.body;
+
+    const result = await pool.query(
+      `UPDATE books
+       SET title = $1,
+           description = $2,
+           isbn = $3,
+           publisher = $4,
+           published_year = $5,
+           cover_url = $6,
+           category_id = $7,
+           updated_at = NOW()
+       WHERE id = $8
+       RETURNING *`,
+      [
+        title,
+        description,
+        isbn,
+        publisher,
+        published_year,
+        cover_url,
+        category_id,
+        id,
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Book not found",
+      });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to update book",
+    });
+  }
+};
+
 module.exports = {
   getBooks,
   getBookById,
   createBook,
+  updateBook,
 };
