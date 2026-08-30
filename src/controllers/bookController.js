@@ -39,7 +39,46 @@ const getBookById = async (req, res) => {
   }
 };
 
+const createBook = async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      isbn,
+      publisher,
+      published_year,
+      cover_url,
+      category_id,
+    } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO books
+        (title, description, isbn, publisher, published_year, cover_url, category_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [
+        title,
+        description,
+        isbn,
+        publisher,
+        published_year,
+        cover_url,
+        category_id,
+      ]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to create book",
+    });
+  }
+};
+
 module.exports = {
   getBooks,
   getBookById,
+  createBook,
 };
