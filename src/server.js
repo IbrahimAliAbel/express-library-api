@@ -1,6 +1,7 @@
 const express = require("express");
 const pool = require("./db");
 const bookRoutes = require("./routes/bookRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
 
 const app = express();
 const PORT = 3000;
@@ -29,6 +30,7 @@ app.get("/test-db", async (req, res) => {
 });
 
 app.use("/books", bookRoutes);
+app.use("/categories", categoryRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
