@@ -4,6 +4,7 @@ const bookRoutes = require("./routes/bookRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const authorRoutes = require("./routes/authorRoutes");
 const bookCopyRoutes = require("./routes/bookCopyRoutes");
+const borrowingRoutes = require("./routes/borrowingRoutes");
 
 const app = express();
 const PORT = 3000;
@@ -35,6 +36,7 @@ app.use("/books", bookRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/authors", authorRoutes);
 app.use("/book-copies", bookCopyRoutes);
+app.use("/borrowings", borrowingRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
