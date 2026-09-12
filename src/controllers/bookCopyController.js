@@ -18,6 +18,28 @@ const getBookCopies = async (req, res) => {
   }
 };
 
+const getBookCopiesByBookId = async (req, res) => {
+  try {
+    const { book_id } = req.params;
+
+    const result = await pool.query(
+      `SELECT *
+       FROM book_copies
+       WHERE book_id = $1
+       ORDER BY created_at ASC`,
+      [book_id]
+    );
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to fetch book copies by book",
+    });
+  }
+};
+
 const getBookCopyById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -126,6 +148,7 @@ const deleteBookCopy = async (req, res) => {
 
 module.exports = {
   getBookCopies,
+  getBookCopiesByBookId,
   getBookCopyById,
   createBookCopy,
   updateBookCopy,

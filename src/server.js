@@ -6,6 +6,7 @@ const authorRoutes = require("./routes/authorRoutes");
 const bookCopyRoutes = require("./routes/bookCopyRoutes");
 const borrowingRoutes = require("./routes/borrowingRoutes");
 const authRoutes = require("./routes/authRoutes");
+const authenticateToken = require("./middleware/authMiddleware");
 
 const app = express();
 const PORT = 3000;
@@ -37,7 +38,7 @@ app.use("/books", bookRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/authors", authorRoutes);
 app.use("/book-copies", bookCopyRoutes);
-app.use("/borrowings", borrowingRoutes);
+app.use("/borrowings", authenticateToken, borrowingRoutes);
 app.use("/auth", authRoutes);
 
 app.listen(PORT, "0.0.0.0", () => {

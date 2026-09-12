@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
   getBookCopies,
+  getBookCopiesByBookId,
   getBookCopyById,
   createBookCopy,
   updateBookCopy,
@@ -11,6 +12,7 @@ const {
 const router = express.Router();
 
 router.get("/", getBookCopies);
+router.get("/book/:book_id", getBookCopiesByBookId);
 router.get("/:id", getBookCopyById);
 router.post("/", createBookCopy);
 router.put("/:id", updateBookCopy);

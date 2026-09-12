@@ -45,8 +45,17 @@ const getBorrowingById = async (req, res) => {
 
 const createBorrowing = async (req, res) => {
   try {
-    const { user_id, book_copy_id } = req.body;
+    const { book_copy_id } = req.body;
+    const user_id = req.user.id;
 
+    // Validasi book_copy_id
+    if (!book_copy_id) {
+      return res.status(400).json({
+        message: "Book copy is required",
+      });
+    }
+
+    // Cek user yang sedang login
     const userResult = await pool.query(
       "SELECT id FROM users WHERE id = $1",
       [user_id]
@@ -58,6 +67,25 @@ const createBorrowing = async (req, res) => {
       });
     }
 
+    // Cek jumlah active borrowing
+    const activeBorrowingResult = await pool.query(
+      `SELECT COUNT(*) AS count
+       FROM borrowings
+       WHERE user_id = $1
+         AND status IN ('PENDING', 'BORROWED', 'RETURN_PENDING')`,
+      [user_id]
+    );
+
+    const activeBorrowingCount =
+      parseInt(activeBorrowingResult.rows[0].count, 10);
+
+    if (activeBorrowingCount >= 3) {
+      return res.status(400).json({
+        message: "Maximum 3 active borrowings allowed",
+      });
+    }
+
+    // Cek physical copy
     const copyResult = await pool.query(
       "SELECT * FROM book_copies WHERE id = $1",
       [book_copy_id]
@@ -69,12 +97,14 @@ const createBorrowing = async (req, res) => {
       });
     }
 
+    // Pastikan copy masih tersedia
     if (copyResult.rows[0].status !== "AVAILABLE") {
       return res.status(400).json({
         message: "Book copy is not available",
       });
     }
 
+    // Buat borrowing request
     const result = await pool.query(
       `INSERT INTO borrowings (
         user_id,
@@ -82,9 +112,9 @@ const createBorrowing = async (req, res) => {
         status,
         requested_at
       )
-      VALUES ($1, $2, $3, NOW())
+      VALUES ($1, $2, 'PENDING', NOW())
       RETURNING *`,
-      [user_id, book_copy_id, "PENDING"]
+      [user_id, book_copy_id]
     );
 
     res.status(201).json(result.rows[0]);
