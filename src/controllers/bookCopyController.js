@@ -23,10 +23,17 @@ const getBookCopiesByBookId = async (req, res) => {
     const { book_id } = req.params;
 
     const result = await pool.query(
-      `SELECT *
-       FROM book_copies
-       WHERE book_id = $1
-       ORDER BY created_at ASC`,
+      `SELECT bc.*
+       FROM book_copies bc
+       WHERE bc.book_id = $1
+         AND bc.status = 'AVAILABLE'
+         AND NOT EXISTS (
+           SELECT 1
+           FROM borrowings b
+           WHERE b.book_copy_id = bc.id
+             AND b.status IN ('PENDING', 'BORROWED', 'RETURN_PENDING')
+         )
+       ORDER BY bc.created_at ASC`,
       [book_id]
     );
 

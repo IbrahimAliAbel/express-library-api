@@ -2,10 +2,21 @@ const pool = require("../db");
 
 const getBorrowings = async (req, res) => {
   try {
+    const user_id = req.user.id;
+
     const result = await pool.query(
-      `SELECT *
-       FROM borrowings
-       ORDER BY created_at ASC`
+      `SELECT
+         b.*,
+         books.title AS book_title,
+         bc.code AS book_copy_code
+       FROM borrowings b
+       JOIN book_copies bc
+         ON b.book_copy_id = bc.id
+       JOIN books
+         ON bc.book_id = books.id
+       WHERE b.user_id = $1
+       ORDER BY b.created_at DESC`,
+      [user_id]
     );
 
     res.json(result.rows);
